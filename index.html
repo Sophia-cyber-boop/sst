@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>大学路机灵的铠甲虾</title>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  background: url("bg.jpg") center / cover no-repeat fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(2px);
+}
+
+.panel {
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.95);
+  width: 520px;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.25);
+  text-align: center;
+}
+
+.logo {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 22px;
+}
+
+.logo span {
+  font-size: 28px;
+  margin-right: 6px;
+}
+
+.block {
+  margin-bottom: 22px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #374151;
+}
+
+input {
+  width: 90%;
+  padding: 12px;
+  font-size: 15px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  text-align: center;
+}
+
+.otp {
+  font-size: 38px;
+  letter-spacing: 6px;
+  font-weight: 700;
+  color: #ef4444;
+  margin: 10px 0;
+}
+
+.timer {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.copy-btn {
+  margin-top: 10px;
+  padding: 10px 18px;
+  font-size: 14px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #fb7185, #f97316);
+  color: #fff;
+}
+
+.copy-btn:active {
+  transform: scale(0.96);
+}
+
+.hidden {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+<div class="overlay"></div>
+
+<div class="panel">
+  <div class="logo">
+    <span>🦐</span>大学路机灵的铠甲虾
+  </div>
+
+  <div class="block">
+    <label>请输入密钥</label>
+    <input id="hex" placeholder="在此输入密钥">
+  </div>
+
+  <!-- Base32 仍然后台计算 -->
+  <div class="hidden" id="base32"></div>
+
+  <div class="block">
+    <label>当前验证码</label>
+    <div class="otp" id="otp">--------</div>
+    <div class="timer" id="timer">剩余时间：30s</div>
+    <button class="copy-btn" onclick="copyOTP()">一键复制验证码</button>
+  </div>
+</div>
+
+<script>
+const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+function hexToBytes(hex) {
+  const out = [];
+  for (let i = 0; i < hex.length; i += 2) {
+    out.push(parseInt(hex.substr(i, 2), 16));
+  }
+  return new Uint8Array(out);
+}
+
+function toBase32(bytes) {
+  let bits = "", res = "";
+  for (const b of bytes) bits += b.toString(2).padStart(8, "0");
+  for (let i = 0; i + 5 <= bits.length; i += 5) {
+    res += alphabet[parseInt(bits.substr(i, 5), 2)];
+  }
+  return res.substring(0, 32);
+}
+
+async function generateOTP(bytes) {
+  const step = 30;
+  const counter = Math.floor(Date.now() / 1000 / step);
+  const buf = new ArrayBuffer(8);
+  new DataView(buf).setUint32(4, counter);
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    bytes,
+    { name: "HMAC", hash: "SHA-1" },
+    false,
+    ["sign"]
+  );
+
+  const hmac = new Uint8Array(await crypto.subtle.sign("HMAC", key, buf));
+  const o = hmac[hmac.length - 1] & 0xf;
+  const code =
+    ((hmac[o] & 0x7f) << 24) |
+    ((hmac[o + 1] & 0xff) << 16) |
+    ((hmac[o + 2] & 0xff) << 8) |
+    (hmac[o + 3] & 0xff);
+
+  return (code % 1e8).toString().padStart(8, "0");
+}
+
+async function refresh() {
+  const hex = document.getElementById("hex").value.trim();
+  if (!/^[0-9a-fA-F]{40}$/.test(hex)) return;
+
+  const bytes = hexToBytes(hex);
+  document.getElementById("base32").innerText = toBase32(bytes);
+  document.getElementById("otp").innerText = await generateOTP(bytes);
+}
+
+function copyOTP() {
+  const text = document.getElementById("otp").innerText;
+  navigator.clipboard.writeText(text);
+}
+
+setInterval(() => {
+  const remain = 30 - Math.floor(Date.now() / 1000) % 30;
+  document.getElementById("timer").innerText = `剩余时间：${remain}s`;
+  if (remain === 30) refresh();
+}, 1000);
+
+document.getElementById("hex").addEventListener("input", refresh);
+</script>
+
+</body>
+</html>
