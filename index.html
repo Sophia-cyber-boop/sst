@@ -6,6 +6,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+  {
+  box-sizing: border-box;
+  }  
 body {
   margin: 0;
   height: 100vh;
@@ -88,6 +91,20 @@ input {
   background: linear-gradient(135deg, #fb7185, #f97316);
   color: #fff;
 }
+  .copy-tip {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  background: linear-gradient(90deg,#22c55e,#06b6d4,#a855f7);
+  -webkit-background-clip: text;
+  color: transparent;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+
+.copy-tip.show {
+  opacity: 1;
+}
 </style>
 </head>
 
@@ -116,3 +133,4 @@ input {
 <script src="main.js"></script>
 </body>
 </html>
+
