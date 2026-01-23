@@ -56,27 +56,13 @@ label {
   color: #374151;
 }
 
-.input-wrap {
-  position: relative;
-}
-
 input {
-  width: 100%;
-  padding: 12px 44px 12px 12px;
+  width: 90%;
+  padding: 12px;
   font-size: 15px;
   border-radius: 10px;
   border: 1px solid #d1d5db;
   text-align: center;
-}
-
-.toggle {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  font-size: 18px;
-  user-select: none;
 }
 
 .otp {
@@ -85,12 +71,6 @@ input {
   font-weight: 700;
   color: #ef4444;
   margin: 10px 0;
-  transition: transform .25s ease, opacity .25s ease;
-}
-
-.otp.flash {
-  transform: scale(1.08);
-  opacity: .6;
 }
 
 .timer {
@@ -121,10 +101,7 @@ input {
 
   <div class="block">
     <label>请输入密钥</label>
-    <div class="input-wrap">
-      <input id="k" type="password" placeholder="在此输入密钥">
-      <div class="toggle" id="toggle">👁️</div>
-    </div>
+    <input id="k" placeholder="在此输入密钥">
   </div>
 
   <div class="block">
