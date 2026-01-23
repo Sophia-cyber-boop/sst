@@ -21,7 +21,8 @@ setInterval(() => {
 }, 1000);
 
 $k.addEventListener("input", refresh);
-// 禁止右键（心理防护）
+
+// 禁止右键（心理威慑）
 document.addEventListener("contextmenu", e => {
   e.preventDefault();
   alert("⚠️ 本页面受版权保护");
