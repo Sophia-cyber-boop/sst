@@ -6,6 +6,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+  * {
+  box-sizing: border-box;
+}
 body {
   margin: 0;
   height: 100vh;
@@ -19,14 +22,13 @@ body {
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,.12);
-  backdrop-filter: blur(2px);
+  background: rgba(255,255,255,.18); /* 仅提亮，不模糊 */
 }
 
 .panel {
   position: relative;
   z-index: 1;
-  background: rgba(255,255,255,.95);
+  background: rgba(255,255,255,.96);
   width: min(520px, 92vw);
   padding: 30px;
   border-radius: 18px;
@@ -56,13 +58,27 @@ label {
   color: #374151;
 }
 
+.input-wrap {
+  position: relative;
+}
+
 input {
-  width: 90%;
-  padding: 12px;
+  width: 100%;
+  padding: 12px 44px 12px 12px;
   font-size: 15px;
   border-radius: 10px;
   border: 1px solid #d1d5db;
   text-align: center;
+}
+
+.toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  user-select: none;
 }
 
 .otp {
@@ -71,6 +87,12 @@ input {
   font-weight: 700;
   color: #ef4444;
   margin: 10px 0;
+  transition: transform .25s ease, opacity .25s ease;
+}
+
+.otp.flash {
+  transform: scale(1.08);
+  opacity: .6;
 }
 
 .timer {
@@ -88,6 +110,27 @@ input {
   background: linear-gradient(135deg, #fb7185, #f97316);
   color: #fff;
 }
+
+/* 复制成功提示 */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) scale(.9);
+  background: rgba(0,0,0,.75);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  opacity: 0;
+  transition: all .25s ease;
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
 </style>
 </head>
 
@@ -101,7 +144,10 @@ input {
 
   <div class="block">
     <label>请输入密钥</label>
-    <input id="k" placeholder="在此输入密钥">
+    <div class="input-wrap">
+      <input id="k" type="password" placeholder="在此输入密钥">
+      <div class="toggle" id="toggle">👁️</div>
+    </div>
   </div>
 
   <div class="block">
@@ -111,6 +157,8 @@ input {
     <button class="copy-btn" onclick="copyOTP()">一键复制验证码</button>
   </div>
 </div>
+
+<div class="toast" id="toast">已复制验证码</div>
 
 <script src="core_x9A7.js"></script>
 <script src="main.js"></script>
